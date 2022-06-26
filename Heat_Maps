@@ -1,0 +1,24 @@
+
+def hood_chart():
+  import pandas as pd
+  import seaborn as sb
+
+  height = ['over 42 in', '43-21 in', 'under 21 in']
+  sheet_title = {'Particle Count': height,
+                'L-Filter': [0, 10, 200],
+                'L-Light': [5, 150, 2000],
+                'M-Filter': [0, 100, 2000],
+                'R-Light': [5, 150, 2000],
+                'R-Filter': [0, 10, 250]}
+  sheet = pd.DataFrame(sheet_title)
+  sheet.set_index('Particle Count', inplace=True)
+  
+  data_file = sheet.to_csv('particle_read')
+  
+  #heat_map = sb.clustermap(sheet, standard_scale= 0)
+  ax = sb.heatmap(sheet, vmin=100, vmax=2000, linewidths=.05, cmap= 'YlGnBu')
+  
+  return(sheet)
+  return(ax)
+
+hood_chart()
