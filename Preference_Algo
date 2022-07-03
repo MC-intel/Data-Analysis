@@ -1,0 +1,28 @@
+
+topic = ['action','horror','romance']
+
+while True:  
+  for i in range(5): 
+      #topic['horror': i]
+      #topic[1: i]
+      #topic[2: i]
+    personal = []
+  import random as rd
+  A = rd.choice(topic)
+  print(A)
+  print('Continue watching?')
+  print('yes no or never')
+
+  u_input = str(input()) 
+  if 'yes' in u_input:
+    personal.append(A)
+    topic.extend(personal)
+    print(topic)
+  elif 'no' in u_input:
+    print('sorry')
+  elif 'never' in u_input:
+    A is A
+    topic.remove(A)
+    print(topic)
+  else:
+    break
