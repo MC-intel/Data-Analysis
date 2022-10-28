@@ -67,7 +67,7 @@ def visual(csv_path):
   vis = image_png(graph)
   return vis
   
-  sql_pull("""INSERT SQL SCRIPT""")
+sql_pull("""INSERT SQL SCRIPT""")
 %R fileoutput <- read.csv('FILE-NAME.csv')
 %R print(fileoutput)
 visual('FILE-PATH')
