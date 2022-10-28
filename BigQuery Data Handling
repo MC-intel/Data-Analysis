@@ -9,7 +9,6 @@
 %R devtools::install_github("hadley/lazyeval", build_vignettes = TRUE)
 
 
-
 def sql_pull(script) -> str:
   import pandas as pd
   import pandas_gbq as pg
@@ -42,7 +41,6 @@ def sql_pull(script) -> str:
     print('Bad input')
     
     
-
 # Visualization
 def visual(csv_path):
   import rpy2 as R
@@ -67,6 +65,7 @@ def visual(csv_path):
   vis = image_png(graph)
   return vis
   
+
 sql_pull("""INSERT SQL SCRIPT""")
 %R fileoutput <- read.csv('FILE-NAME.csv')
 %R print(fileoutput)
