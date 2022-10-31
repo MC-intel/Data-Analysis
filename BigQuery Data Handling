@@ -1,28 +1,18 @@
 !gcloud auth application-default login
 # Get key
-
 !gcloud config set project PROJECT-NAME
 # Assign key
 
-# Initialize R
-%load_ext rpy2.ipython
-%R devtools::install_github("hadley/lazyeval", build_vignettes = TRUE)
 
-
+# Preform Query
 def sql_pull(script) -> str:
   import pandas as pd
   import pandas_gbq as pg
   from google.cloud import bigquery
+
   # Get Big Query
   project = 'PROJECT-NAME'
   client = bigquery.Client(project=project)
-
-  # R
-  import rpy2 as R
-  import rpy2.robjects.lib.ggplot2 as gp
-  from rpy2.robjects import rl
-  from rpy2.robjects.packages import importr
-  utils = importr('utils')
 
   try:
     # Preform a query
@@ -32,19 +22,29 @@ def sql_pull(script) -> str:
 
     if query_job.state == 'DONE': # DataFrame
       dframe = query_job.to_dataframe()
-      dframe.to_csv('test.csv', index=False) # Prepare .csv
-      dfile = utils.read_csv('/content/test.csv') 
+      dframe.to_csv('File-Name.csv', index=False) # Prepare .csv
+      
     else:
       print(query_job.result())
 
   except:
     print('Bad input')
     
-    
+ 
+ # Initialize R (one time use)
+%load_ext rpy2.ipython
+%R fileoutput <- read.csv('File-Name.csv')
+%R print(fileoutput)
+%R devtools::install_github("hadley/lazyeval", build_vignettes = TRUE)
+
 # Visualization
 def visual(csv_path):
   import rpy2 as R
+  import rpy2.robjects
+
+  import rpy2.robjects.packages as rpackages
   from rpy2.robjects.packages import importr
+
   import rpy2.robjects.lib.ggplot2 as gp
   from rpy2.robjects import rl
 
@@ -64,9 +64,3 @@ def visual(csv_path):
   from rpy2.ipython.ggplot import image_png
   vis = image_png(graph)
   return vis
-  
-
-sql_pull("""INSERT SQL SCRIPT""")
-%R fileoutput <- read.csv('FILE-NAME.csv')
-%R print(fileoutput)
-visual('FILE-PATH')
