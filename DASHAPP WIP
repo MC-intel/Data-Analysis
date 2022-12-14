@@ -1,16 +1,18 @@
+#HANDLE BIG QUERY DATA
+
 !gcloud auth application-default login
 # Get key
-
-!gcloud config set project bcs-pulse-iot
+!gcloud config set project PROJECT-NAME
 # Assign key
 
+#Ping Data Warehouse and get SQL data
 def sql_pull(script) -> str:
   import pandas as pd
   import pandas_gbq as pg
   from google.cloud import bigquery
 
   # Get Big Query
-  project = 'bcs-pulse-iot'
+  project = 'PROJECT-NAME'
   client = bigquery.Client(project=project)
 
   try:
@@ -21,7 +23,7 @@ def sql_pull(script) -> str:
 
     if query_job.state == 'DONE': # DataFrame
       dframe = query_job.to_dataframe()
-      dframe.to_csv('test.csv', index=False) # Prepare .csv
+      dframe.to_csv('data.csv', index=False) # Prepare .csv
       return dframe
     else:
       print(query_job.result())
@@ -29,12 +31,12 @@ def sql_pull(script) -> str:
   except:
     print('Bad input')
     
-    # Run function
+# Run function
 import os
-sql_pull("""SELECT sensorName, temperature, humidity FROM `bcs-pulse-iot.TRANSFORMATION.view_Environment` LIMIT 20""")
+sql_pull("""PUT RELATED SQL SCRIPTS HERE""")
 
 
-
+# DASH APP
 
 # Install libraries for backend/frontend foundation
 !pip install dash
@@ -53,7 +55,7 @@ from google.colab.output import eval_js
 print(eval_js("google.colab.kernel.proxyPort(5001)"))
 
 
-# Initialize dash and create webpage
+# Initialize dash and create webpage with BigQuery Visual
 dashapp = """
 def create_dashapp(flask_app):
     import dash
@@ -99,6 +101,8 @@ def create_dashapp(flask_app):
 with open ('dashapp.py', 'w') as wi:
   wi.write(dashapp)
   
+  
+  # Build second Dash webpage with custom visual (heatmaps)
   dashapp2 = """def create_dashapp2(flask_app):
     import dash
     from dash import html, dcc
@@ -175,6 +179,7 @@ with open ('the_site.py', 'w') as wi:
 
 
 
+#Using R visuals with BigQuery Data
 
 !pip install rpy2==3.5.1
 
@@ -219,5 +224,4 @@ def visual(csv_path) -> str:
     wi.write(vis)
     
     visual('/content/test.csv')
-    
     
