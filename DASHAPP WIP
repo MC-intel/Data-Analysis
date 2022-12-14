@@ -1,0 +1,223 @@
+!gcloud auth application-default login
+# Get key
+
+!gcloud config set project bcs-pulse-iot
+# Assign key
+
+def sql_pull(script) -> str:
+  import pandas as pd
+  import pandas_gbq as pg
+  from google.cloud import bigquery
+
+  # Get Big Query
+  project = 'bcs-pulse-iot'
+  client = bigquery.Client(project=project)
+
+  try:
+    # Preform a query
+    SQL = script
+    query_job = client.query(SQL) # API request
+    rows = query_job.result()
+
+    if query_job.state == 'DONE': # DataFrame
+      dframe = query_job.to_dataframe()
+      dframe.to_csv('test.csv', index=False) # Prepare .csv
+      return dframe
+    else:
+      print(query_job.result())
+
+  except:
+    print('Bad input')
+    
+    # Run function
+import os
+sql_pull("""SELECT sensorName, temperature, humidity FROM `bcs-pulse-iot.TRANSFORMATION.view_Environment` LIMIT 20""")
+
+
+
+
+# Install libraries for backend/frontend foundation
+!pip install dash
+!pip install flask
+!pip install plotly
+!pip install dash-bootstrap-templates
+import plotly
+import flask
+import dash
+import dash_core_components as dcc
+import dash_html_components as html
+
+# Open port
+!mkdir templates
+from google.colab.output import eval_js
+print(eval_js("google.colab.kernel.proxyPort(5001)"))
+
+
+# Initialize dash and create webpage
+dashapp = """
+def create_dashapp(flask_app):
+    import dash
+    from dash import html, dcc, callback, Output, Input
+    from dash import Dash, dash_table
+    import pandas as pd
+    import plotly.express as px
+
+    df = pd.read_csv('/content/test.csv')
+    fig = px.scatter(df, x="sensorName", y="temperature")
+
+    my_input = dcc.Input(value='initial value', type='text')
+    my_output = html.Div()
+
+    dash_app = dash.Dash(server=flask_app, name="Dashboard", url_base_pathname="/dash/")
+    dash_app.layout = html.Div(
+        children=[
+            html.H1(children="TFN Pulse IoT Data"),
+            html.P(
+            children="Hello, please enjoy these interactive visuals. "
+            " - D&D Team"),
+            dcc.Graph(figure=fig),
+
+            html.H6("Test"),
+            html.Div([
+                "Input: ",
+                my_input
+    ]),
+    html.Br(),
+    my_output
+
+        ])
+
+    @callback(
+      Output(my_output, component_property='children'),
+      Input(my_input, component_property='value')
+      )
+    def update_output_div(input_value):
+      return f'Output: {input_value}'
+
+    return dash_app
+"""
+with open ('dashapp.py', 'w') as wi:
+  wi.write(dashapp)
+  
+  dashapp2 = """def create_dashapp2(flask_app):
+    import dash
+    from dash import html, dcc
+    from dash import Dash, dash_table
+    import pandas as pd
+    import plotly.express as px
+    import dash_bootstrap_components as dbc
+
+    data=[[0,9,0,3,0], [0,5,0,30,0], [0,3,0,8,0], [1,4,0,1,1] ,[1,0,1,4,5]]
+    fig2 = px.imshow(data,
+                    labels=dict(x="Hood Roof", y="Height", color="Particle Density"),
+                    x=['Lfilt', 'Llight', 'Mfilt', 'Rlight', 'Rfilt'],
+                    y=['top', 'over 42', '42-21', 'under 21', 'bottom'], color_continuous_scale='YlGnBu'
+
+                  )
+
+    fig3 = px.imshow(data,
+                    labels=dict(x="Hood Roof", y="Height", color="Particle Density"),
+                    x=['Lfilt', 'Llight', 'Mfilt', 'Rlight', 'Rfilt'],
+                    y=['top', 'over 42', '42-21', 'under 21', 'bottom'], color_continuous_scale='YlGnBu'
+
+                  )
+
+    for template in ["plotly", "plotly_dark"]:
+        fig2.update_layout(template=template)
+        fig3.update_layout(template=template)
+
+    fig2.update_xaxes(side="top")
+
+    dash_app2 = dash.Dash(server=flask_app, name="Dashboard", url_base_pathname="/hm/", external_stylesheets=[dbc.themes.CYBORG])
+    dash_app2.layout = html.Div(
+      children=[
+          html.H1(children="TFN Hoods:"),
+          html.P(
+          children="Please enjoy these interactive visuals of particle readings. "
+          " - D&D Team"),
+          dcc.Graph(figure=fig2),
+          dcc.Graph(figure=fig3),
+
+      ])
+
+    return dash_app2
+  """
+
+with open('dashapp2.py', 'w') as wi:
+    wi.write(dashapp2)
+
+#import this to thefile
+
+# Initialize Flask and create domain
+the_file = """
+from flask import Flask
+from flask import render_template, flash, request
+import dash
+
+from dashapp import create_dashapp
+from dashapp2 import create_dashapp2
+
+app = Flask(__name__)
+app.secret_key = 'key' 
+create_dashapp(app)
+create_dashapp2(app)
+
+@app.route('/')
+def hello_world_home_page():
+  site = 'Welcome'
+  return site
+"""
+with open ('the_site.py', 'w') as wi:
+  wi.write(the_file)
+  
+  # Run server
+!export FLASK_APP=/content/the_site.py;flask run --host=0.0.0.0 --port=5001
+
+
+
+
+!pip install rpy2==3.5.1
+
+# Initialize R (one time use)
+%load_ext rpy2.ipython
+%R fileoutput <- read.csv('test.csv')
+%R print(fileoutput)
+%R devtools::install_github("hadley/lazyeval", build_vignettes = TRUE)
+
+%R install.packages("remotes")
+#%R remotes::install_github("plotly/dashR", upgrade = "always")
+
+# Visualization
+def visual(csv_path) -> str:
+  import rpy2 as R
+  import rpy2.robjects
+
+  import rpy2.robjects.packages as rpackages
+  from rpy2.robjects.packages import importr
+
+  import rpy2.robjects.lib.ggplot2 as gp
+  from rpy2.robjects import rl
+
+  utils = importr('utils')
+  dfile = utils.read_csv(csv_path)
+
+  # Create graph
+  graph = (gp.ggplot(dfile) +
+      gp.aes(x=rl('temperature'),
+              y=rl('sensorName'),
+              color=rl('humidity'),
+              size=rl('temperature')) +
+      gp.geom_point() +
+      gp.scale_color_continuous(trans='log10'))
+
+  # Produce image
+  from rpy2.ipython.ggplot import image_png
+  vis = image_png(graph)
+  return vis
+
+  with open('image.raw', 'w') as wi:
+    wi.write(vis)
+    
+    visual('/content/test.csv')
+    
+    
