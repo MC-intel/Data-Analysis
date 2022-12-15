@@ -1,0 +1,83 @@
+#HANDLE BIG QUERY DATA
+
+!gcloud auth application-default login
+# Get key
+!gcloud config set project PROJECT-NAME
+# Assign key
+
+#Ping Data Warehouse and get SQL data
+def sql_pull(script) -> str:
+  import pandas as pd
+  import pandas_gbq as pg
+  from google.cloud import bigquery
+
+  # Get Big Query
+  project = 'PROJECT-NAME'
+  client = bigquery.Client(project=project)
+
+  try:
+    # Preform a query
+    SQL = script
+    query_job = client.query(SQL) # API request
+    rows = query_job.result()
+
+    if query_job.state == 'DONE': # DataFrame
+      dframe = query_job.to_dataframe()
+      dframe.to_csv('data.csv', index=False) # Prepare .csv
+      return dframe
+    else:
+      print(query_job.result())
+
+  except:
+    print('Bad input')
+    
+# Run function
+import os
+sql_pull("""PUT RELATED SQL SCRIPTS HERE""")
+
+#Using R visuals with BigQuery Data
+
+!pip install rpy2==3.5.1
+
+# Initialize R (one time use)
+%load_ext rpy2.ipython
+%R fileoutput <- read.csv('test.csv')
+%R print(fileoutput)
+%R devtools::install_github("hadley/lazyeval", build_vignettes = TRUE)
+
+%R install.packages("remotes")
+#%R remotes::install_github("plotly/dashR", upgrade = "always")
+
+# Visualization
+def visual(csv_path) -> str:
+  import rpy2 as R
+  import rpy2.robjects
+
+  import rpy2.robjects.packages as rpackages
+  from rpy2.robjects.packages import importr
+
+  import rpy2.robjects.lib.ggplot2 as gp
+  from rpy2.robjects import rl
+
+  utils = importr('utils')
+  dfile = utils.read_csv(csv_path)
+
+  # Create graph
+  graph = (gp.ggplot(dfile) +
+      gp.aes(x=rl('temperature'),
+              y=rl('sensorName'),
+              color=rl('humidity'),
+              size=rl('temperature')) +
+      gp.geom_point() +
+      gp.scale_color_continuous(trans='log10'))
+
+  # Produce image
+  from rpy2.ipython.ggplot import image_png
+  vis = image_png(graph)
+  return vis
+
+  with open('image.raw', 'w') as wi:
+    wi.write(vis)
+    
+    visual('/content/test.csv')
+    
