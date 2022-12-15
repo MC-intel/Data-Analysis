@@ -1,0 +1,94 @@
+import plotly.express as px
+import pandas as pd
+
+print('Left Filter:')
+print('Top')
+L_top = int(input())
+print('Over 42 in.')
+L_42 = int(input())
+print('Middle')
+L_mid = int(input())
+print('Under 21 in.')
+L_21 = int(input())
+print('Bottom')
+L_bot = int(input())
+print(' ')
+
+print('Left Light:')
+print('Top')
+LL_top = int(input())
+print('Over 42 in.')
+LL_42 = int(input())
+print('Middle')
+LL_mid = int(input())
+print('Under 21 in.')
+LL_21 = int(input())
+print('Bottom')
+LL_bot = int(input())
+print(' ')
+
+print('Middle Filter:')
+print('Top')
+M_top = int(input())
+print('Middle')
+M_42 = int(input())
+print('42-21 in.')
+M_mid = int(input())
+print('Under 21 in.')
+M_21 = int(input())
+print('Bottom')
+M_bot = int(input())
+print(' ')
+
+print('Right Light:')
+print('Top')
+RL_top = int(input())
+print('Middle')
+RL_42 = int(input())
+print('42-21 in.')
+RL_mid = int(input())
+print('Under 21 in.')
+RL_21 = int(input())
+print('Bottom')
+RL_bot = int(input())
+print(' ')
+
+print('Right Filter:')
+print('Top')
+R_top = int(input())
+print('Over 42 in.')
+R_42 = int(input())
+print('Middle')
+R_mid = int(input())
+print('Under 21 in.')
+R_21 = int(input())
+print('Bottom')
+R_bot = int(input())
+print(' ')
+
+data_list = [L_top,L_42,L_mid,L_21,L_bot,
+      LL_top,LL_42,LL_mid,LL_21,LL_bot,
+      M_top,M_42,M_mid,M_21,M_bot,
+      RL_top,RL_42,RL_mid,RL_21,RL_bot,
+      R_top,R_42,R_mid,R_21,R_bot]
+
+height = ['Top','Over 42 in', 'Middle', 'Under 21 in', 'Bottom']
+sheet_title = {'Particle Count': height,
+              'L-Filter': [L_top,L_42,L_mid,L_21,L_bot],
+              'L-Light': [LL_top,LL_42,LL_mid,LL_21,LL_bot],
+              'M-Filter': [M_top,M_42,M_mid,M_21,M_bot],
+              'R-Light': [RL_top,RL_42,RL_mid,RL_21,RL_bot],
+              'R-Filter': [R_top,R_42,R_mid,R_21,R_bot]}
+
+sheet = pd.DataFrame(sheet_title)
+sheet.set_index('Particle Count', inplace=True)
+
+fig = px.imshow(sheet,
+                labels=dict(x="Hood Roof", y="Height", color="Particle Density"),color_continuous_scale='YlGnBu', range_color=[0,100]
+
+               )
+for template in ["plotly", "plotly_dark"]:
+    fig.update_layout(template=template)
+
+fig.update_xaxes(side="top")
+fig.show()
