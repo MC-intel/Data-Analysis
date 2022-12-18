@@ -81,3 +81,36 @@ def visual(csv_path) -> str:
     
     visual('/content/test.csv')
     
+
+#error handling
+import pandas as pd
+import pandas_gbq as pg
+from google.cloud import bigquery
+
+def sql_pull(project: str, script: str) -> pd.DataFrame:
+    """Execute a SQL query and return the results as a Pandas DataFrame.
+    
+    Args:
+        project (str): The GCP project to use.
+        script (str): The SQL script to execute.
+        
+    Returns:
+        pd.DataFrame: A Pandas DataFrame containing the query results.
+        
+    Raises:
+        Exception: If an error occurs while executing the query.
+    """
+    client = bigquery.Client(project=project)
+    
+    try:
+        query_job = client.query(script)
+        rows = query_job.result()
+        
+        if query_job.state == 'DONE':
+            dframe = query_job.to_dataframe()
+            dframe.to_csv('data.csv', index=False)
+            return dframe
+        else:
+            raise Exception(query_job.result())
+    except Exception as e:
+        print(f'Error executing query: {e}')
