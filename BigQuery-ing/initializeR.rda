@@ -1,0 +1,12 @@
+#Using R visuals with BigQuery Data
+
+!pip install rpy2==3.5.1
+
+# Initialize R (one time use)
+%load_ext rpy2.ipython
+%R fileoutput <- read.csv('test.csv')
+%R print(fileoutput)
+%R devtools::install_github("hadley/lazyeval", build_vignettes = TRUE)
+
+%R install.packages("remotes")
+#%R remotes::install_github("plotly/dashR", upgrade = "always")
