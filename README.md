@@ -1,3 +1,1 @@
-Currently working on separating the individual instances of the various languages. 
-Right now most of these scripts are a mix of Python, Bash, R, and a bit of SQL.
-                                                               In the master branch there are some scripts I use daily for work. 
+Misc data analysis scripts. Mostly Big-query related using python, SQL and a bit of R. 
